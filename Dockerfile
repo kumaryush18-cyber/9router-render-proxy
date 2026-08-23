@@ -13,14 +13,18 @@ RUN npm install -g 9router
 # explicitly install better-sqlite3 globally so 9router can find it
 RUN npm install -g better-sqlite3
 
-# We must run a postinstall script or tell 9router where better-sqlite3 is
+# Tell 9router where better-sqlite3 is
 ENV NODE_PATH="/usr/local/lib/node_modules"
 
-# Use the default node user instead of creating a custom one
+# Use the default node user
 USER node
 WORKDIR /app
 
 EXPOSE $PORT
+
+# Set a secure default password so we aren't locked out of remote access
+# You can change this once you log in to the dashboard
+ENV INITIAL_PASSWORD="changeme123"
 
 # Run 9router 
 CMD ["sh", "-c", "9router -p ${PORT:-10000} -H 0.0.0.0 -n -l --skip-update"]
