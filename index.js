@@ -1,29 +1,13 @@
-const { exec } = require('child_process');
-const fs = require('fs');
+const { execSync } = require('child_process');
 
-console.log("Starting 9router proxy...");
+console.log("Starting 9router proxy directly...");
 const port = process.env.PORT || 10000;
 
-// Need to explicitly locate the global 9router binary just to be safe
-const child = exec(`npx 9router start --port ${port}`);
-
-child.stdout.on('data', (data) => {
-    process.stdout.write(data);
-});
-
-child.stderr.on('data', (data) => {
-    process.stderr.write(data);
-});
-
-child.on('close', (code) => {
-    console.log(`9router process exited with code ${code}`);
-});
-
-// Add a dummy http server just in case 9router fails to bind
-// This tricks render into thinking the deploy worked so we can at least get logs
-const http = require('http');
-const server = http.createServer((req, res) => {
-  res.writeHead(200);
-  res.end('9router proxy wrapper running!\n');
-});
-server.listen(port + 1); // Bind to another port just to keep process alive if 9router dies
+try {
+  // Execute it synchronously so the Node process blocks on it.
+  // 9router binds to 0.0.0.0 by default, which is what Render needs.
+  execSync(`npx 9router start --port ${port}`, { stdio: 'inherit' });
+} catch (e) {
+  console.error("9router failed to start:");
+  console.error(e);
+}
