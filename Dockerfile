@@ -8,9 +8,10 @@ RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 USER appuser
 WORKDIR /app
 
-# The port Render will inject
 EXPOSE $PORT
 
-# Run 9router using the command we suspect works
-# NOTE: If this prompts for input, it will hang.
-CMD ["sh", "-c", "9router start --port ${PORT:-10000}"]
+# Run 9router using the actual CLI flags
+# -n: Don't open browser automatically (CRITICAL FOR HEADLESS/RENDER)
+# -l: Show server logs
+# --skip-update: Skip auto-update check to prevent hanging
+CMD ["sh", "-c", "9router -p ${PORT:-10000} -H 0.0.0.0 -n -l --skip-update"]
