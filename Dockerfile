@@ -5,7 +5,7 @@ RUN apk add --no-cache python3 make g++ gcc sqlite-dev
 
 # Set an environment variable so 9router knows where to store data
 ENV DATA_DIR="/data"
-RUN mkdir -p /data && chown -R 1000:1000 /data
+RUN mkdir -p /data && chown -R 1000:100 /data
 
 # Install 9router globally
 RUN npm install -g 9router
@@ -17,7 +17,8 @@ RUN npm install -g better-sqlite3
 ENV NODE_PATH="/usr/local/lib/node_modules"
 
 # Create a non-root user and directory (matching the chown above)
-RUN addgroup -g 1000 appgroup && adduser -u 1000 -S appuser -G appgroup
+# Alpine's default 'users' group is gid 100
+RUN adduser -u 1000 -S appuser -G users
 USER appuser
 WORKDIR /app
 
