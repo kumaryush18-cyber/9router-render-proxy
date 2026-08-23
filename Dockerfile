@@ -1,4 +1,4 @@
-FROM node:18-alpine
+FROM node:20-alpine
 
 # Install Python and build tools for native SQLite bindings
 RUN apk add --no-cache python3 make g++ gcc sqlite-dev
