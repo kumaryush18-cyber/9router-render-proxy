@@ -1,19 +1,25 @@
 FROM node:18-alpine
 
-# Install OS dependencies for node-gyp and SQLite compilation
+# Install Python and build tools for native SQLite bindings
 RUN apk add --no-cache python3 make g++ gcc sqlite-dev
+
+# Set an environment variable so 9router knows where to store data
+ENV DATA_DIR="/data"
+RUN mkdir -p /data && chown -R 1000:1000 /data
 
 # Install 9router globally
 RUN npm install -g 9router
 
-# Environment variable to control where 9router puts its data/runtime.
-# Render's ephemeral disk wipes out ~/.9router on reboot, but we can map
-# a persistent disk to /data on Render and point 9router to it!
-ENV DATA_DIR="/data"
+# explicitly install better-sqlite3 globally so 9router can find it
+RUN npm install -g better-sqlite3
 
-# Create a non-root user
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+# We must run a postinstall script or tell 9router where better-sqlite3 is
+ENV NODE_PATH="/usr/local/lib/node_modules"
+
+# Create a non-root user and directory (matching the chown above)
+RUN addgroup -g 1000 appgroup && adduser -u 1000 -S appuser -G appgroup
 USER appuser
+WORKDIR /app
 
 EXPOSE $PORT
 
